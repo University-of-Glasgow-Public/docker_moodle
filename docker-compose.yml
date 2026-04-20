@@ -37,12 +37,13 @@ services:
 
     mysql:
         container_name: "${PROJECT_NAME}_mysql"
-        image: mariadb:latest
+        image: mariadb:10.11.15-jammy
+        command: --max_allowed_packet=1073741824
         environment:
             MYSQL_ROOT_PASSWORD: 'purple'
             MYSQL_USER: 'moodleuser'
             MYSQL_PASSWORD: 'moodlepass'
-            MYSQL_DATABASE: 'moodle45'
+            MYSQL_DATABASE: ${DATABASE_NAME}
         restart: always
         volumes:
             - mysqldata:/var/lib/mysql:delegated
@@ -54,33 +55,6 @@ services:
         image: redis:latest
         command: redis-server --save "" --appendonly no
         restart: always
-
-    redisinsight:
-        image: redis/redisinsight:latest
-        container_name: "${PROJECT_NAME}_insight"
-        ports:
-            - "${PORT_REDISINSIGHT}:5540"
-        environment:
-            RI_APP_HOST: 0.0.0.0
-        volumes:
-            - ./redisinsight:/data
-
-    mailhog:
-        image: mailhog/mailhog
-        container_name: "${PROJECT_NAME}_mailhog"
-        ports:
-            - "${PORT_MAILHOG}:8025"
-
-    idp:
-        image: kenchan0130/simplesamlphp
-        container_name: "${PROJECT_NAME}_idp"
-        ports:
-            - "${PORT_IDP}:8080"
-        environment:
-            SIMPLESAMLPHP_SP_ENTITY_ID: "${SP_ENTITY_ID}"
-            SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE: "${WWWROOT}/auth/saml2/sp/saml2-acs.php/fergus.local"
-        volumes:
-            - ./authsources.php:/var/www/simplesamlphp/config/authsources.php
 
 volumes:
     mysqldata: {}
